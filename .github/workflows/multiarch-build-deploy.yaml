@@ -29,9 +29,7 @@ jobs:
 
       - name: Build Image
         run: |
-          docker build --platform linux/${{matrix.arch}} --build-arg ARCH=${{matrix.arch}} \
-          --build-arg VERSION=${{matrix.version}} \
-          -t ${{env.REPO_NAME}}/php${{matrix.version}}:manifest-${{matrix.arch}} . \
+          docker build --platform linux/${{matrix.arch}} --build-arg ARCH=${{matrix.arch}} --build-arg VERSION=${{matrix.version}} -t ${{env.REPO_NAME}}/php${{matrix.version}}:manifest-${{matrix.arch}} .
 
       - name: Push Image
         run: |
@@ -56,10 +54,7 @@ jobs:
 
       - name: Update Manifests
         run: |
-          docker manifest create \
-          ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-latest \
-          --amend ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-amd64 \
-          --amend ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-arm64
+          docker manifest create ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-latest --amend ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-amd64 --amend ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-arm64
 
       - name: Push Manifests
         run: |
