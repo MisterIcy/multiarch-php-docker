@@ -27,6 +27,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Image
+        continue-on-error: true
         run: |
           docker build --build-arg ARCH=${{matrix.arch}} \
           --build-arg VERSION=${{matrix.version}} \
