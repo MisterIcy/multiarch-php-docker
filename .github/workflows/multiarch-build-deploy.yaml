@@ -1,0 +1,62 @@
+name: Build and Deploy Images
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REPO_NAME: mistericy
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build PHP ${{matrix.version}}-${{ matrix.arch }}
+    strategy:
+      matrix:
+        arch: [ 'arm64', 'amd64' ]
+        version: [ '7.4', '8.0', '8.1' ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Image
+        run: |
+          docker build --build-arg ARCH=${{matrix.arch}} \
+          --build-arg VERSION=${{matrix.version}} 
+          -t ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-${{matrix.arch}} .
+      - name: Push Image
+          docker push ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-${{matrix.arch}}
+
+  createmanifest:
+    runs-on: ubuntu-latest
+    name: Create Manifest
+    strategy:
+      matrix:
+        version: [ '7.4', '8.0', '8.1' ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Update Manifests
+        run: |
+          docker manifest create \
+          ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-latest \
+          --amend ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-amd64 \
+          --amend ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-arm64
+
+      - name: Push Manifests
+        run: |
+          docker manifest push ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-latest         
