@@ -16,7 +16,7 @@ jobs:
       macos-latest: arm64
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'macos-latest']
+        os: [ 'ubuntu-latest', 'macos-latest' ]
         version: [ '7.4', '8.0', '8.1' ]
 
 
@@ -44,11 +44,11 @@ jobs:
           docker build --platform linux/${{env[matrix.os]}} \
           --build-arg ARCH=${{env[matrix.os]}} \
           --build-arg VERSION=${{matrix.version}} \
-          -t ${{env.REPO_NAME}}/php${{matrix.version}}:manifest-${{env[matrix.os]}} .
+          -t ${{ env.REPO_NAME }}/php-${{ matrix.version }}:manifest-${{ env[matrix.os] }} .
 
       - name: Push Image
         run: |
-          docker push ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-${{env[matrix.os]}}
+          docker push ${{ env.REPO_NAME }}/php-${{ matrix.version }}:manifest-${{ env[matrix.os] }}
 
   createmanifest:
     needs: build
@@ -69,7 +69,9 @@ jobs:
 
       - name: Update Manifests
         run: |
-          docker manifest create ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-latest --amend ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-amd64 --amend ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-arm64
+          docker manifest create ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-latest \
+          --amend ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-amd64 \
+          --amend ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-arm64
 
       - name: Push Manifests
         run: |
