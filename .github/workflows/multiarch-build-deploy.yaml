@@ -35,6 +35,7 @@ jobs:
           docker push ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-${{matrix.arch}}
 
   createmanifest:
+    needs: build
     runs-on: ubuntu-latest
     name: Create Manifest
     strategy:
