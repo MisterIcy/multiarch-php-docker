@@ -10,7 +10,7 @@ env:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    name: Build PHP ${{matrix.version}}-${{ matrix.arch }}
+    name: Build PHP ${{matrix.version}}-${{ matrix.os }}
     env:
       ubuntu-latest: amd64
       macos-latest: arm64
@@ -24,15 +24,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Install Docker
+        if: matrix.os == 'macos-latest'
+        run: brew install docker colima
+
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Install Docker
-        if: matrix.os == 'macos-latest'
-        run: brew install docker colima
 
       - name: Build Image
         run: |
