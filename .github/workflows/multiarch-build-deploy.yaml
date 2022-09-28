@@ -9,11 +9,14 @@ env:
 
 jobs:
   build:
-    runs-on: windows-2022
+    runs-on: ${{ matrix.os }}
     name: Build PHP ${{matrix.version}}-${{ matrix.arch }}
+    env:
+      ubuntu-latest: amd64
+      macos-latest: arm64
     strategy:
       matrix:
-        arch: [ 'arm64', 'amd64' ]
+        os: ['ubuntu-latest', 'macos-latest']
         version: [ '7.4', '8.0', '8.1' ]
 
 
@@ -27,9 +30,16 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Install Docker
+        if: matrix.os == 'macos-latest'
+        run: brew install docker colima
+
       - name: Build Image
         run: |
-          docker build --platform linux/${{matrix.arch}} --build-arg ARCH=${{matrix.arch}} --build-arg VERSION=${{matrix.version}} -t ${{env.REPO_NAME}}/php${{matrix.version}}:manifest-${{matrix.arch}} .
+          docker build --platform linux/${{env[matrix.os]}} \
+          --build-arg ARCH=${{env[matrix.os]}} \
+          --build-arg VERSION=${{matrix.version}} \
+          -t ${{env.REPO_NAME}}/php${{matrix.version}}:manifest-${{env[matrix.os]}} .
 
       - name: Push Image
         run: |
