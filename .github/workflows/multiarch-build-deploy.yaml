@@ -28,7 +28,10 @@ jobs:
 
       - name: Build Image
         run: |
-          docker build --build-arg ARCH=${{matrix.arch}} --build-arg VERSION=${{matrix.version}} -t ${{env.REPO_NAME}}/php${{matrix.version}}:manifest-${{matrix.arch}} .
+          docker build --build-arg ARCH=${{matrix.arch}} \
+          --build-arg VERSION=${{matrix.version}} \
+          -t ${{env.REPO_NAME}}/php${{matrix.version}}:manifest-${{matrix.arch}} . \
+          --platform ${{matrix.arch}}
       - name: Push Image
         run: |
           docker push ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-${{matrix.arch}}
