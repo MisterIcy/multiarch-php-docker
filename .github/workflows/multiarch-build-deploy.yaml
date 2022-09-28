@@ -16,6 +16,7 @@ jobs:
         arch: [ 'arm64', 'amd64' ]
         version: [ '7.4', '8.0', '8.1' ]
 
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -27,12 +28,11 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Image
-        continue-on-error: true
         run: |
-          docker build --build-arg ARCH=${{matrix.arch}} \
+          docker build --platform linux/${{matrix.arch}} --build-arg ARCH=${{matrix.arch}} \
           --build-arg VERSION=${{matrix.version}} \
           -t ${{env.REPO_NAME}}/php${{matrix.version}}:manifest-${{matrix.arch}} . \
-          --platform linux/${{matrix.arch}}
+
       - name: Push Image
         run: |
           docker push ${{ env.REPO_NAME}}/php-${{matrix.version}}:manifest-${{matrix.arch}}
